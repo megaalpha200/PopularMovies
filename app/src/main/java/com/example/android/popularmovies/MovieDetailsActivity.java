@@ -38,7 +38,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
                     .placeholder(R.drawable.ic_local_movies_black_24dp)
                     .into(posterImageView);
 
-            userRatingTextView.append("\n\t\t" + Double.toString(movieInfo.getUserRating()) + "\\10");
+            userRatingTextView.append("\n\t\t" + Double.toString(movieInfo.getUserRating()) + "/10");
             releaseDateTextView.append("\n\t\t" + movieInfo.getReleaseDate());
             plotSynopsisTextView.append("\n\t\t" + movieInfo.getMoviePlotSynopsis());
         }

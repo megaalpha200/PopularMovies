@@ -56,6 +56,7 @@ public class NetworkUtils {
     }
 
     public static JSONObject getResponseFromHttpUrl(URL url) throws IOException {
+        //Source: https://developer.android.com/reference/java/net/HttpURLConnection
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         try {
             InputStream in = urlConnection.getInputStream();
@@ -82,14 +83,15 @@ public class NetworkUtils {
         return networkBroadcastReceiver;
     }
 
-    public static void setNetworkBroadcastRecieverListener(NetworkBroadcastReceiver listener) {
+    public static void setNetworkBroadcastReceiverListener(NetworkBroadcastReceiver listener) {
         networkBroadcastRecieverListener = listener;
     }
 
-    public static void registerNetworkBroadcastReciever(Context context) {
+    public static void registerNetworkBroadcastReceiver(Context context) {
         networkBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                //Source: https://stackoverflow.com/questions/1560788/how-to-check-internet-access-on-android-inetaddress-never-times-out
                 ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
                  isOnline = activeNetwork != null && activeNetwork.isConnectedOrConnecting();

@@ -75,8 +75,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     @Override
     protected void onResume() {
         super.onResume();
-        NetworkUtils.setNetworkBroadcastRecieverListener(this);
-        NetworkUtils.registerNetworkBroadcastReciever(this);
+        NetworkUtils.setNetworkBroadcastReceiverListener(this);
+        NetworkUtils.registerNetworkBroadcastReceiver(this);
     }
 
     @Override
