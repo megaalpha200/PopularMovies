@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.example.android.popularmovies.MovieDetailsActivity"
+    tools:showIn="@layout/activity_movie_details">
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:padding="5dp">
+
+        <ImageView
+            android:id="@+id/movie_poster_image_view"
+            android:layout_width="@dimen/poster_image_width"
+            android:layout_height="@dimen/poster_image_height" />
+
+        <TextView
+            android:id="@+id/user_rating_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/movie_details_big_text_size"
+            android:text="@string/user_rating_label"
+            android:layout_toRightOf="@id/movie_poster_image_view"
+            android:layout_toEndOf="@id/movie_poster_image_view"/>
+
+        <TextView
+            android:id="@+id/release_date_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/movie_details_big_text_size"
+            android:text="@string/release_date_label"
+            android:layout_toRightOf="@id/movie_poster_image_view"
+            android:layout_toEndOf="@id/movie_poster_image_view"
+            android:layout_below="@id/user_rating_text_view"
+            android:paddingTop="@dimen/movie_details_widget_padding_space"/>
+
+        <TextView
+            android:id="@+id/plot_synopsis_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/movie_details_big_text_size"
+            android:text="@string/plot_synopsis_label"
+            android:layout_below="@id/movie_poster_image_view"
+            android:paddingTop="@dimen/movie_details_widget_padding_space"/>
+
+    </RelativeLayout>
+</ScrollView>
