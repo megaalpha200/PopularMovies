@@ -10,21 +10,25 @@ import android.widget.TextView;
 import com.example.android.popularmovies.Models.Movie;
 import com.squareup.picasso.Picasso;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Created by Jose A. Alvarado on 5/28/2018.
  */
 
 public class MovieDetailsActivity extends AppCompatActivity {
 
+    @BindView(R.id.movie_poster_image_view) ImageView posterImageView;
+    @BindView(R.id.user_rating_text_view) TextView userRatingTextView;
+    @BindView(R.id.release_date_text_view) TextView releaseDateTextView;
+    @BindView(R.id.plot_synopsis_text_view) TextView plotSynopsisTextView;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_details);
-
-        ImageView posterImageView = findViewById(R.id.movie_poster_image_view);
-        TextView userRatingTextView = findViewById(R.id.user_rating_text_view);
-        TextView releaseDateTextView = findViewById(R.id.release_date_text_view);
-        TextView plotSynopsisTextView = findViewById(R.id.plot_synopsis_text_view);
+        ButterKnife.bind(this);
 
         ActionBar actionBar = getSupportActionBar();
 

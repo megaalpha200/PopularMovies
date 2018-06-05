@@ -4,23 +4,25 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.example.android.popularmovies.Utils.NetworkUtils;
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by Jose A. Alvarado on 5/28/2018.
  */
 
 public class Movie implements Parcelable {
-    private String movieTitle;
-    private String moviePlotSynopsis;
-    private double userRating;
-    private String releaseDate;
-
-    private Uri moviePosterUri;
+    @SerializedName("original_title") private String movieTitle;
+    @SerializedName("overview") private String moviePlotSynopsis;
+    @SerializedName("vote_average") private double userRating;
+    @SerializedName("release_date") private String releaseDate;
+    @SerializedName("poster_path") private String moviePosterUri;
 
     public Movie() {
 
     }
 
-    public Movie(String movieTitle, String moviePlotSynopsis, double userRating, String releaseDate, Uri moviePosterUri) {
+    public Movie(String movieTitle, String moviePlotSynopsis, double userRating, String releaseDate, String moviePosterUri) {
         this.movieTitle = movieTitle;
         this.moviePlotSynopsis = moviePlotSynopsis;
         this.userRating = userRating;
@@ -33,7 +35,7 @@ public class Movie implements Parcelable {
         moviePlotSynopsis = in.readString();
         userRating = in.readDouble();
         releaseDate = in.readString();
-        moviePosterUri = in.readParcelable(Uri.class.getClassLoader());
+        moviePosterUri = in.readString();
     }
 
     @Override
@@ -42,7 +44,7 @@ public class Movie implements Parcelable {
         dest.writeString(moviePlotSynopsis);
         dest.writeDouble(userRating);
         dest.writeString(releaseDate);
-        dest.writeParcelable(moviePosterUri, flags);
+        dest.writeString(moviePosterUri);
     }
 
     @Override
@@ -95,10 +97,10 @@ public class Movie implements Parcelable {
     }
 
     public Uri getMoviePosterUri() {
-        return moviePosterUri;
+        return NetworkUtils.buildMovieImageURL(moviePosterUri.substring(1));
     }
 
-    public void setMoviePosterUri(Uri moviePosterUri) {
+    public void setMoviePosterUri(String moviePosterUri) {
         this.moviePosterUri = moviePosterUri;
     }
 

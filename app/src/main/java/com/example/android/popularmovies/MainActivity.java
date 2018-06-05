@@ -19,6 +19,8 @@ import android.widget.Toast;
 import com.example.android.popularmovies.Interfaces.MoviePosterOnClickListener;
 import com.example.android.popularmovies.Models.Movie;
 import com.example.android.popularmovies.Utils.NetworkUtils;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -120,12 +122,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                     JSONObject currentMovieData = (JSONObject) resultsArr.get(i);
                     Uri currMoviePosterPath = NetworkUtils.buildMovieImageURL(currentMovieData.getString(getString(R.string.movie_poster_url_key)).substring(1));
 
-                    Movie currentMovieDetails = new Movie();
-                    currentMovieDetails.setMovieTitle(currentMovieData.getString(getString(R.string.movie_title_key)));
-                    currentMovieDetails.setMoviePlotSynopsis(currentMovieData.getString(getString(R.string.movie_plot_synopsis_key)));
-                    currentMovieDetails.setUserRating(currentMovieData.getDouble(getString(R.string.movie_user_rating_key)));
-                    currentMovieDetails.setReleaseDate(currentMovieData.getString(getString(R.string.movie_release_date_key)));
-                    currentMovieDetails.setMoviePosterUri(currMoviePosterPath);
+                    Gson gson = new GsonBuilder().create();
+                    Movie currentMovieDetails = gson.fromJson(String.valueOf(currentMovieData), Movie.class);
 
                     movieData.add(currentMovieDetails);
                     moviePosterUris.add(currMoviePosterPath);

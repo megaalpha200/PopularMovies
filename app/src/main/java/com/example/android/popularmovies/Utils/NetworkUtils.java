@@ -10,14 +10,14 @@ import android.net.Uri;
 
 import com.example.android.popularmovies.R;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Scanner;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * Created by Jose A. Alvarado on 5/24/2018.
@@ -56,26 +56,19 @@ public class NetworkUtils {
     }
 
     public static JSONObject getResponseFromHttpUrl(URL url) throws IOException {
-        //Source: https://developer.android.com/reference/java/net/HttpURLConnection
-        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        OkHttpClient client = new OkHttpClient();
+
         try {
-            InputStream in = urlConnection.getInputStream();
+            Request request = new Request.Builder()
+                    .url(url)
+                    .build();
 
-            Scanner scanner = new Scanner(in);
-            scanner.useDelimiter("\\A");
+            Response response = client.newCall(request).execute();
 
-            boolean hasInput = scanner.hasNext();
-            if (hasInput) {
-                return new JSONObject(scanner.next());
-            } else {
-                throw new JSONException("No input found!");
-            }
+            return new JSONObject(response.body().string());
         }
-        catch (JSONException e) {
+        catch (Exception ex) {
             return null;
-        }
-        finally {
-            urlConnection.disconnect();
         }
     }
 
