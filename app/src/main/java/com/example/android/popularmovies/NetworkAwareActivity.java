@@ -41,5 +41,6 @@ public abstract class NetworkAwareActivity extends AppCompatActivity implements 
     @Override
     protected void onPause() {
         super.onPause();
+        unregisterReceiver(NetworkUtils.getNetworkBroadcastReceiver());
     }
 }

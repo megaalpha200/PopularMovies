@@ -9,6 +9,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 
+import com.example.android.popularmovies.BuildConfig;
 import com.example.android.popularmovies.R;
 
 import org.json.JSONObject;
@@ -23,7 +24,7 @@ import okhttp3.Response;
 
 public class NetworkUtils {
 
-    private final static String TMDB_API_KEY = ""; //TODO Add API KEY HERE
+    private final static String TMDB_API_KEY = BuildConfig.TMDB_API_KEY; //Gets API Key from gradle.properties
     private final static Uri BASE_TMDB_URI = Uri.parse("http://api.themoviedb.org/3/movie");
     private final static String POPULAR_RETRIEVAL_URL_PATH = "popular";
     private final static String HIGH_RATED_RETRIEVAL_URL_PATH = "top_rated";

@@ -65,11 +65,8 @@ public class MainActivity extends NetworkAwareActivity implements SharedPreferen
 
         String prefStr = sharedPreferences.getString(getString(R.string.sort_preference_key), getResources().getString(R.string.popular_sort_pref_val));
 
-        if (savedInstanceState != null && savedInstanceState.getParcelableArrayList(getString(R.string.movie_data_key)) != null) {
-            List<Movie> movies = savedInstanceState.getParcelableArrayList(getString(R.string.movie_data_key));
-            setUpRecyclerView(movies);
-        }
-        else if (prefStr.equals(getString(R.string.favorites_sort_pref_val)) && retrievedMovieData == null) {
+
+        if (prefStr.equals(getString(R.string.favorites_sort_pref_val))) {
 
             final MainViewModel mainViewModel = new MainViewModel(getApplication());
 
@@ -81,6 +78,10 @@ public class MainActivity extends NetworkAwareActivity implements SharedPreferen
                     setUpRecyclerView(movies);
                 }
             });
+        }
+        else if (savedInstanceState != null && savedInstanceState.getParcelableArrayList(getString(R.string.movie_data_key)) != null) {
+            List<Movie> movies = savedInstanceState.getParcelableArrayList(getString(R.string.movie_data_key));
+            setUpRecyclerView(movies);
         }
         else if (retrievedMovieData == null) {
             MoviesRetrievalTask moviesRetrievalTask  = new MoviesRetrievalTask();
