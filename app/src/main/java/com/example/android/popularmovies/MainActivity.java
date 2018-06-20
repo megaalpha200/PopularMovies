@@ -1,22 +1,24 @@
 package com.example.android.popularmovies;
 
 import android.annotation.SuppressLint;
+import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.android.popularmovies.Interfaces.MoviePosterOnClickListener;
+import com.example.android.popularmovies.Models.MainViewModel;
 import com.example.android.popularmovies.Models.Movie;
 import com.example.android.popularmovies.Utils.NetworkUtils;
 import com.google.gson.Gson;
@@ -26,65 +28,80 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener, MoviePosterOnClickListener, NetworkUtils.NetworkBroadcastReceiver {
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
-    static ArrayList<Movie> retrievedMovieData;
+public class MainActivity extends NetworkAwareActivity implements SharedPreferences.OnSharedPreferenceChangeListener, MoviePosterOnClickListener {
 
-    private TextView noNetworkConnectionTextView;
-    private RecyclerView moviePosterRecyclerView;
+    private List<Movie> retrievedMovieData;
+
+    @BindView(R.id.no_connection_text_view) TextView noNetworkConnectionTextView;
+    @BindView(R.id.movie_poster_recycler_view) RecyclerView moviePosterRecyclerView;
+    @BindView(R.id.loading_progress_bar) ProgressBar loadingProgressBar;
+
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
-        noNetworkConnectionTextView = findViewById(R.id.no_connection_text_view);
-        moviePosterRecyclerView = findViewById(R.id.movie_poster_recycler_view);
+        setUpSharedPreferences(PreferenceManager.getDefaultSharedPreferences(this));
 
-        checkConnection(NetworkUtils.isOnline);
+        super.onCreate(savedInstanceState);
     }
 
-    private void loadUI() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+    private void setUpSharedPreferences(SharedPreferences preferences) {
+        sharedPreferences = preferences;
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-
-        MoviesRetrievalTask moviesRetrievalTask  = new MoviesRetrievalTask();
-        moviesRetrievalTask.execute(sharedPreferences.getString(getString(R.string.sort_preference_key), getResources().getString(R.string.popular_sort_pref_val)));
     }
 
-    private void checkConnection(boolean isConnected) {
-        loadUI();
+    @Override
+    protected void loadUI(Bundle savedInstanceState) {
+        noNetworkConnectionTextView.setVisibility(View.INVISIBLE);
+        loadingProgressBar.setVisibility(View.VISIBLE);
 
-        if (!isConnected) {
+        String prefStr = sharedPreferences.getString(getString(R.string.sort_preference_key), getResources().getString(R.string.popular_sort_pref_val));
 
-            if (moviePosterRecyclerView.getAdapter() == null || moviePosterRecyclerView.getAdapter().getItemCount() == 0) {
-                noNetworkConnectionTextView.setVisibility(View.VISIBLE);
-            }
+        if (savedInstanceState != null && savedInstanceState.getParcelableArrayList(getString(R.string.movie_data_key)) != null) {
+            List<Movie> movies = savedInstanceState.getParcelableArrayList(getString(R.string.movie_data_key));
+            setUpRecyclerView(movies);
+        }
+        else if (prefStr.equals(getString(R.string.favorites_sort_pref_val)) && retrievedMovieData == null) {
 
-            Toast.makeText(this, getString(R.string.no_network_connection_str), Toast.LENGTH_SHORT).show();
+            final MainViewModel mainViewModel = new MainViewModel(getApplication());
+
+            mainViewModel.getMovies().observe(this, new Observer<List<Movie>>() {
+                @Override
+                public void onChanged(@Nullable List<Movie> movies) {
+                    mainViewModel.getMovies().removeObserver(this);
+                    retrievedMovieData = movies;
+                    setUpRecyclerView(movies);
+                }
+            });
+        }
+        else if (retrievedMovieData == null) {
+            MoviesRetrievalTask moviesRetrievalTask  = new MoviesRetrievalTask();
+            moviesRetrievalTask.execute(prefStr);
         }
         else {
-            noNetworkConnectionTextView.setVisibility(View.INVISIBLE);
+            loadingProgressBar.setVisibility(View.INVISIBLE);
         }
     }
 
     @Override
-    public void onNetworkStatusChanged(boolean isConnected) {
-        checkConnection(isConnected);
+    protected void loadNoConnectionUI() {
+        if (moviePosterRecyclerView.getAdapter() == null || moviePosterRecyclerView.getAdapter().getItemCount() == 0) {
+            noNetworkConnectionTextView.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        NetworkUtils.setNetworkBroadcastReceiverListener(this);
-        NetworkUtils.registerNetworkBroadcastReceiver(this);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        unregisterReceiver(NetworkUtils.getNetworkBroadcastReceiver());
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(getString(R.string.movie_data_key), (ArrayList<Movie>) retrievedMovieData);
     }
 
     @Override
@@ -94,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     }
 
     @SuppressLint("StaticFieldLeak")
-    public class MoviesRetrievalTask extends AsyncTask<String, Void, JSONObject> {
+    class MoviesRetrievalTask extends AsyncTask<String, Void, JSONObject> {
         @Override
         protected JSONObject doInBackground(String... strings) {
             JSONObject popularMoviesObj = null;
@@ -103,7 +120,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                 popularMoviesObj =  NetworkUtils.retrieveMovieData(strings[0], MainActivity.this);
             }
             catch (Exception e){
-                   e.printStackTrace();
+                e.printStackTrace();
+                loadingProgressBar.setVisibility(View.INVISIBLE);
             }
 
             return popularMoviesObj;
@@ -112,11 +130,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         @Override
         protected void onPostExecute(JSONObject jsonObject) {
             try {
-                JSONArray resultsArr = jsonObject.getJSONArray("results");
+                JSONArray resultsArr = jsonObject.getJSONArray(getString(R.string.movie_data_results_key));
                 ArrayList<Movie> movieData = new ArrayList<>();
-                ArrayList<Uri> moviePosterUris = new ArrayList<>();
-
-                retrievedMovieData = movieData;
 
                 for(int i = 0; i < resultsArr.length(); i++) {
                     JSONObject currentMovieData = (JSONObject) resultsArr.get(i);
@@ -124,25 +139,34 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
                     Gson gson = new GsonBuilder().create();
                     Movie currentMovieDetails = gson.fromJson(String.valueOf(currentMovieData), Movie.class);
+                    currentMovieDetails.setMoviePosterUri(currMoviePosterPath.toString());
 
                     movieData.add(currentMovieDetails);
-                    moviePosterUris.add(currMoviePosterPath);
+                    setUpRecyclerView(movieData);
                 }
-
-                GridLayoutManager layoutManager = new GridLayoutManager(MainActivity.this, 2);
-                final MoviePosterAdapter mAdapter = new MoviePosterAdapter(MainActivity.this, moviePosterUris, MainActivity.this);
-
-                moviePosterRecyclerView.setLayoutManager(layoutManager);
-                moviePosterRecyclerView.setHasFixedSize(true);
-
-                moviePosterRecyclerView.setAdapter(mAdapter);
-
-                noNetworkConnectionTextView.setVisibility(View.INVISIBLE);
             }
             catch (Exception e) {
                 e.printStackTrace();
+                loadingProgressBar.setVisibility(View.INVISIBLE);
             }
         }
+    }
+
+    private void setUpRecyclerView(List<Movie> movieData) {
+        retrievedMovieData = movieData;
+
+        GridLayoutManager layoutManager = new GridLayoutManager(MainActivity.this, 2);
+        MoviePosterAdapter mAdapter = new MoviePosterAdapter(MainActivity.this);
+        mAdapter.setMovies(movieData);
+        mAdapter.setPosterOnClickListener(MainActivity.this);
+
+        moviePosterRecyclerView.setLayoutManager(layoutManager);
+        moviePosterRecyclerView.setHasFixedSize(true);
+
+        moviePosterRecyclerView.setAdapter(mAdapter);
+
+        noNetworkConnectionTextView.setVisibility(View.INVISIBLE);
+        loadingProgressBar.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -171,8 +195,11 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        MoviesRetrievalTask moviesRetrievalTask  = new MoviesRetrievalTask();
-        moviesRetrievalTask.execute(sharedPreferences.getString(getString(R.string.sort_preference_key), getResources().getString(R.string.popular_sort_pref_val)));
+        //MoviesRetrievalTask moviesRetrievalTask  = new MoviesRetrievalTask();
+        //moviesRetrievalTask.execute(sharedPreferences.getString(getString(R.string.sort_preference_key), getResources().getString(R.string.popular_sort_pref_val)));
+
+        retrievedMovieData = null;
+        //loadUI(null);
     }
 
     @Override

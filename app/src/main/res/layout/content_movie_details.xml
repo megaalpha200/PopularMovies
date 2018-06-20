@@ -8,43 +8,158 @@
     tools:context="com.example.android.popularmovies.MovieDetailsActivity"
     tools:showIn="@layout/activity_movie_details">
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent" android:layout_height="wrap_content"
+    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:padding="5dp">
 
         <ImageView
             android:id="@+id/movie_poster_image_view"
             android:layout_width="@dimen/poster_image_width"
-            android:layout_height="@dimen/poster_image_height" />
+            android:layout_height="@dimen/poster_image_height"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:contentDescription="@string/movie_poster_img_cont_desc"/>
+
+        <TextView
+            android:id="@+id/user_rating_label_text_view"
+            android:layout_width="0dp"
+            android:layout_height="27dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/user_rating_label"
+            android:textSize="@dimen/movie_details_big_text_size"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/movie_poster_image_view"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/user_rating_text_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="27dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:text="@string/user_rating_placeholder"
             android:textSize="@dimen/movie_details_big_text_size"
-            android:text="@string/user_rating_label"
-            android:layout_toRightOf="@id/movie_poster_image_view"
-            android:layout_toEndOf="@id/movie_poster_image_view"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/user_rating_label_text_view"
+            app:layout_constraintTop_toBottomOf="@+id/user_rating_label_text_view" />
+
+        <TextView
+            android:id="@+id/release_date_label_text_view"
+            android:layout_width="0dp"
+            android:layout_height="34dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/release_date_label"
+            android:textSize="@dimen/movie_details_big_text_size"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/user_rating_label_text_view"
+            app:layout_constraintTop_toBottomOf="@+id/user_rating_text_view" />
 
         <TextView
             android:id="@+id/release_date_text_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="27dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:text="@string/release_date_placeholder"
             android:textSize="@dimen/movie_details_big_text_size"
-            android:text="@string/release_date_label"
-            android:layout_toRightOf="@id/movie_poster_image_view"
-            android:layout_toEndOf="@id/movie_poster_image_view"
-            android:layout_below="@id/user_rating_text_view"
-            android:paddingTop="@dimen/movie_details_widget_padding_space"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/release_date_label_text_view"
+            app:layout_constraintTop_toBottomOf="@+id/release_date_label_text_view" />
 
         <TextView
             android:id="@+id/plot_synopsis_text_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:text="@string/plot_synopsis_placeholder"
+            android:textSize="@dimen/movie_details_big_text_size"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/plot_synopsis_label_text_view"
+            app:layout_constraintTop_toBottomOf="@+id/plot_synopsis_label_text_view" />
+
+        <TextView
+            android:id="@+id/movie_trailers_label_text_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/trailers_label"
+            android:textSize="@dimen/movie_details_big_text_size"
+            app:layout_constraintStart_toStartOf="@+id/plot_synopsis_label_text_view"
+            app:layout_constraintTop_toBottomOf="@+id/plot_synopsis_text_view" />
+
+
+        <TextView
+            android:id="@+id/movie_reviews_label_text_view"
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/reviews_label"
+            android:textSize="@dimen/movie_details_big_text_size"
+            app:layout_constraintStart_toStartOf="@+id/movie_trailers_label_text_view"
+            app:layout_constraintTop_toBottomOf="@+id/movie_trailers_scroll_view" />
+
+        <!--Adding the ScrollView significantly improved scrolling speed-->
+        <!--Is there a better alternative to this?-->
+        <ScrollView
+            android:id="@+id/movie_trailers_scroll_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/movie_trailers_label_text_view">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/movie_trailers_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:visibility="visible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/movie_trailers_label_text_view" />
+        </ScrollView>
+
+        <!--Adding the ScrollView significantly improved scrolling speed-->
+        <!--Is there a better alternative to this?-->
+        <ScrollView
+            android:id="@+id/movie_reviews_scroll_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/movie_reviews_label_text_view">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/movie_reviews_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/movie_reviews_label_text_view" />
+        </ScrollView>
+
+        <TextView
+            android:id="@+id/plot_synopsis_label_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/movie_details_big_text_size"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
             android:text="@string/plot_synopsis_label"
-            android:layout_below="@id/movie_poster_image_view"
-            android:paddingTop="@dimen/movie_details_widget_padding_space"/>
+            android:textSize="@dimen/movie_details_big_text_size"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/movie_poster_image_view" />
 
-    </RelativeLayout>
+
+    </android.support.constraint.ConstraintLayout>
 </ScrollView>

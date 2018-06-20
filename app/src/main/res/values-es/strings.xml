@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Popular Movies</string>
+    <string name="share_trailer_chooser_title">Compartir %1$s</string>
+    <string name="no_network_connection_str">"¡No hay conexion de red! "</string>
+    <string name="title_activity_settings">Configuraciones</string>
+    <string name="action_settings">Configuraciones</string>
+</resources>

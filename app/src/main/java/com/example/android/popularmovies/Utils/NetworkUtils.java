@@ -7,13 +7,11 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Bundle;
 
 import com.example.android.popularmovies.R;
 
 import org.json.JSONObject;
-
-import java.io.IOException;
-import java.net.URL;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -26,41 +24,94 @@ import okhttp3.Response;
 public class NetworkUtils {
 
     private final static String TMDB_API_KEY = ""; //TODO Add API KEY HERE
-    private final static String POPULAR_RETRIEVAL_URL = "http://api.themoviedb.org/3/movie/popular?api_key=" + TMDB_API_KEY;
-    private final static String HIGH_RATED_RETRIEVAL_URL = "http://api.themoviedb.org/3/movie/top_rated?api_key=" + TMDB_API_KEY;
+    private final static Uri BASE_TMDB_URI = Uri.parse("http://api.themoviedb.org/3/movie");
+    private final static String POPULAR_RETRIEVAL_URL_PATH = "popular";
+    private final static String HIGH_RATED_RETRIEVAL_URL_PATH = "top_rated";
+    private final static String TRAILERS_RETRIEVAL_URL_PATH = "videos";
+    private final static String REVIEWS_RETRIEVAL_URL_PATH = "reviews";
+    private final static String API_KEY_QUERY = "api_key";
 
-    private final static String BASE_TMDB_URL = "http://image.tmdb.org/t/p/w185";
+    private final static String BASE_TMDB_POSTER_URL = "http://image.tmdb.org/t/p/w185";
+
+    private final static Uri YOUTUBE_BASE_URI = Uri.parse("https://www.youtube.com/watch");
 
     public static boolean isOnline = true;
-    private static NetworkBroadcastReceiver networkBroadcastRecieverListener;
+    private static NetworkBroadcastReceiver networkBroadcastReceiverListener;
     private static BroadcastReceiver networkBroadcastReceiver;
 
-    public static JSONObject retrieveMovieData(String sortChoice, Context context) throws IOException {
+    public static JSONObject retrieveMovieData(String selectionChoice, Context context) {
 
-        if(sortChoice.equals(context.getString(R.string.popular_sort_pref_val))) {
-            return getResponseFromHttpUrl(new URL(POPULAR_RETRIEVAL_URL));
+        if(selectionChoice.equals(context.getString(R.string.popular_sort_pref_val))) {
+            return getResponseFromHttpUrl(POPULAR_RETRIEVAL_URL_PATH);
         }
-        else if(sortChoice.equals(context.getString(R.string.high_rating_sort_pref_val))) {
-            return getResponseFromHttpUrl(new URL(HIGH_RATED_RETRIEVAL_URL));
+        else if(selectionChoice.equals(context.getString(R.string.high_rating_sort_pref_val))) {
+            return getResponseFromHttpUrl(HIGH_RATED_RETRIEVAL_URL_PATH);
         }
-        else {
-            return getResponseFromHttpUrl(new URL(POPULAR_RETRIEVAL_URL));
+        else
+            return new JSONObject();
+    }
+
+    public static JSONObject retrieveMovieData(String selectionChoice, String id, Context context) {
+        if(selectionChoice.equals(context.getString(R.string.movie_trailer_data_key))) {
+            return getResponseFromHttpUrl(TRAILERS_RETRIEVAL_URL_PATH, id);
         }
+        else if(selectionChoice.equals(context.getString(R.string.movie_review_data_key))) {
+            return getResponseFromHttpUrl(REVIEWS_RETRIEVAL_URL_PATH, id);
+        }
+        else
+            return new JSONObject();
     }
 
     public static Uri buildMovieImageURL(String imgFilePath) {
-        Uri.Builder uriBuilder = Uri.parse(BASE_TMDB_URL).buildUpon()
+        Uri.Builder uriBuilder = Uri.parse(BASE_TMDB_POSTER_URL).buildUpon()
                 .appendPath(imgFilePath);
 
         return uriBuilder.build();
     }
 
-    public static JSONObject getResponseFromHttpUrl(URL url) throws IOException {
+    public static Uri buildYoutubeTrailerUri(String trailerKey) {
+        Uri.Builder builder = YOUTUBE_BASE_URI.buildUpon()
+                .appendQueryParameter("v", trailerKey);
+
+        return builder.build();
+    }
+
+    private static JSONObject getResponseFromHttpUrl(String urlPath) {
+        Uri.Builder builder = BASE_TMDB_URI.buildUpon()
+                .appendPath(urlPath)
+                .appendQueryParameter(API_KEY_QUERY, TMDB_API_KEY);
+
+        Uri dataRetrievalUri = builder.build();
+
         OkHttpClient client = new OkHttpClient();
 
         try {
             Request request = new Request.Builder()
-                    .url(url)
+                    .url(dataRetrievalUri.toString())
+                    .build();
+
+            Response response = client.newCall(request).execute();
+
+            return new JSONObject(response.body().string());
+        }
+        catch (Exception ex) {
+            return null;
+        }
+    }
+
+    private static JSONObject getResponseFromHttpUrl(String urlPath, String id) {
+        Uri.Builder builder = BASE_TMDB_URI.buildUpon()
+                .appendPath(id)
+                .appendPath(urlPath)
+                .appendQueryParameter(API_KEY_QUERY, TMDB_API_KEY);
+
+        Uri dataRetrievalUri = builder.build();
+
+        OkHttpClient client = new OkHttpClient();
+
+        try {
+            Request request = new Request.Builder()
+                    .url(dataRetrievalUri.toString())
                     .build();
 
             Response response = client.newCall(request).execute();
@@ -77,7 +128,7 @@ public class NetworkUtils {
     }
 
     public static void setNetworkBroadcastReceiverListener(NetworkBroadcastReceiver listener) {
-        networkBroadcastRecieverListener = listener;
+        networkBroadcastReceiverListener = listener;
     }
 
     public static void registerNetworkBroadcastReceiver(Context context) {
@@ -89,8 +140,8 @@ public class NetworkUtils {
                 NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
                  isOnline = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
 
-                 if (networkBroadcastRecieverListener != null) {
-                     networkBroadcastRecieverListener.onNetworkStatusChanged(isOnline);
+                 if (networkBroadcastReceiverListener != null) {
+                     networkBroadcastReceiverListener.onNetworkStatusChanged(isOnline);
                  }
             }
         };

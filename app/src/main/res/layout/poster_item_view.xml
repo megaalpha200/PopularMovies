@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="@dimen/poster_image_width" android:layout_height="@dimen/poster_image_height" android:padding="5dp">
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="5dp"
+    tools:layout_editor_absoluteY="81dp">
+
     <ImageView
         android:id="@+id/movie_poster_image_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:contentDescription="@string/empty_movie_poster_image_view_cont_desc"/>
-</FrameLayout>
+        android:layout_width="0dp"
+        android:layout_height="@dimen/poster_image_height"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_local_movies_black_24dp"
+        android:contentDescription="@string/movie_poster_img_cont_desc"/>
+</android.support.constraint.ConstraintLayout>
